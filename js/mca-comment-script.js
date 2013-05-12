@@ -24,7 +24,7 @@ jQuery(document).ready(function($){
 
         var $ishim = null;
 
-        $(this).parent('.mca-author').addClass('mca-fired');
+        $(this).parents('.mca-author').addClass('mca-fired');
 
         $elems.each(function(index){
             if($(this).hasClass('mca-fired') || index == $elems.length-1){

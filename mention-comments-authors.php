@@ -81,7 +81,7 @@ function printnames(){
     if( ! apply_filters( 'mcaajaxenable', false ) )
         wp_localize_script( 'mca-comment-script', 'mcaAuthors', $authors );
 }
-add_action('comment_form','printnames');
+add_action( 'comment_form', 'printnames' );
 
 /**
 RETRIEVE LAST COMMENTATORS KEYS/NAMES
@@ -95,3 +95,13 @@ function mca_get_previous_commentators( $postid, $commid ) {
     return $out;
 }
 
+/**
+SEND EMAILS TO POKED ONES
+*/
+function mca_email_poked_ones( $comment_id ) {
+    $comment = get_comment( $comment_id );
+    $prev_authors = mca_get_previous_commentators( $comment->comment_post_ID, $comment_id );
+    //do preg_match
+    // die( var_dump( $comment, $prev_authors ) );
+}
+add_action( 'comment_post', 'mca_email_poked_ones', 90 );

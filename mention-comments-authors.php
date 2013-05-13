@@ -23,9 +23,9 @@ function mca_enqueue_comments_scripts() {
     wp_register_script( 'caretposition', CTL_PLUGIN_URL . '/js/jquery.caretposition.js', array( 'jquery' ), '0.9', true );
     wp_register_script( 'sew', CTL_PLUGIN_URL . '/js/jquery.sew.min.js', array( 'jquery','caretposition' ), '0.9', true );
     if( ! apply_filters( 'mcaajaxenable', false ) )
-        wp_register_script( 'mca-comment-script', CTL_PLUGIN_URL . '/js/mca-comment-script.js', array( 'jquery','caretposition','sew' ), '0.9', true );
+        wp_register_script( 'mca-comment-script', CTL_PLUGIN_URL . '/js/mca-comment-script5.js', array( 'jquery','caretposition','sew' ), '0.9', true );
     else 
-        wp_register_script( 'mca-comment-script', CTL_PLUGIN_URL . '/js/mca-comment-script-ajax.js', array( 'jquery','caretposition','sew' ), '0.9', true );
+        wp_register_script( 'mca-comment-script', CTL_PLUGIN_URL . '/js/mca-comment-script-ajax6.js', array( 'jquery','caretposition','sew' ), '0.9', true );
 
     wp_enqueue_script( 'jquery' );
     wp_enqueue_script( 'caretposition' );
@@ -40,13 +40,16 @@ CATCH NAME IN COMMENTS & ADD ANCHOR LINK (OR OPACITY)
 function mca_modify_comment_text( $content, $com ) {
     global $mcaAuthors;
 
-    if( ! is_array( $mcaAuthors ) )
-        $mcaAuthors = array();
+    if( apply_filters( 'mcaajaxenable', false ) )
+        $mcaAuthors = mca_get_previous_commentators( $com->comment_post_ID, $com->comment_ID );
+    else {
+        if( ! is_array( $mcaAuthors ) )
+            $mcaAuthors = array();
 
-    $newEntry = $com->comment_author;
-    if( ! in_array( $newEntry, $mcaAuthors ) )
-        $mcaAuthors[ sanitize_title( $com->comment_author ) ] = $newEntry;
-
+        $newEntry = $com->comment_author;
+        if( ! in_array( $newEntry, $mcaAuthors ) )
+            $mcaAuthors[ sanitize_title( $com->comment_author ) ] = $newEntry;
+    }
     //Rearrange content
     $modifiedcontent = preg_replace_callback('/\@([a-zA-Z0-9-]*)/', 'mca_comment_callback', $content);
     if( apply_filters( 'mcaajaxenable', false ) )
@@ -79,3 +82,14 @@ function printnames(){
         wp_localize_script( 'mca-comment-script', 'mcaAuthors', $authors );
 }
 add_action('comment_form','printnames');
+
+
+function mca_get_previous_commentators( $postid, $commid ) {
+    global $wpdb;
+    $prev = $wpdb->get_results( $wpdb->prepare("SELECT DISTINCT comment_author FROM $wpdb->comments WHERE comment_post_ID = $postid AND comment_ID < $commid", 'ARRAY_N' ) );
+    $out = array();
+    foreach( $prev as $p )
+        $out[ sanitize_title( $p->comment_author ) ] = $p->comment_author;
+    return $out;
+}
+

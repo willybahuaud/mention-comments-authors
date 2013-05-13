@@ -54,5 +54,19 @@
     cursor:pointer;
 }
 .mca-comment-text-wrapper{
-    background:#DFE9FD;
+    
+}
+.mca-author{
+    -webkit-transition: all 0.5s;
+    -moz-transition: all 0.5s;
+    -ms-transition: all 0.5s;
+    -o-transition: all 0.5s;
+    transition: all 0.5s;   
+}
+.mca-prevent-elem{
+    border:1px solid #cecece;
+    padding:1em;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
 }

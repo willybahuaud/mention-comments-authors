@@ -8,8 +8,7 @@ Stable tag: 0.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-"Mention comment's authors" is a plugin that improves the WordPress comments fonctionality, adding a response system between authors.
-When adding a comment, your readers can directly mentioning the author of another comment, like facebook or twitter do,using the "@" symbol.
+When adding a comment, your users can directly mentioning the author of another comment, like facebook or twitter do,using the "@" symbol.
 
 == Description ==
 

@@ -108,19 +108,19 @@ function mca_email_poked_ones( $comment_id ) {
     $comment = get_comment( $comment_id );
     $prev_authors = mca_get_previous_commentators( $comment->comment_post_ID, $comment_id, true );
     //do preg_match
-    $pattern = '/(?:^|\s)\@(' . implode('|', array_keys( $prev_authors ) ) . ')(?:$|\s)/';
+    $pattern = '/(?:^|\s)\@(' . implode( '|', array_keys( $prev_authors ) ) . ')(?:$|\s)/';
     preg_match_all( $pattern, $comment->comment_content, $matches );
-    // die( var_dump( $comment, $prev_authors, $matches ) );
+    // die( var_dump( $comment, $prev_authors, $matches[1] ) );
     foreach( $matches[1] as $m ) {
-        $mail = $prev_authors[ $m[ 1 ] ][1];
-        $name = $prev_authors[ $m[ 1 ] ][0];
+        $mail = $prev_authors[ $m ][1];
+        $name = $prev_authors[ $m ][0];
         $titre = get_the_title( $comment->comment_post_ID );
 
         $subject = wp_sprintf( __( ' %s à répondu à votre commentaire sur l\'article &laquo;%s&raquo;' , 'mca' ), $comment->comment_author, $titre );
-        $message = wp_trim_words( $comment->comment_content, 25 ) . "\r\n" . __( 'Voir l\'article', 'mca' ) .' : <a href="' . get_permalink( $comment->comment_post_ID ) . '">' . $titre . '</a>';
+        $message = '<div><h1>' . $subject . '</h1><div style="Border:5px solid grey;padding:1em;">' . apply_filters( 'the_content', wp_trim_words( $comment->comment_content, 25 ) ) . "</div></div><p>" . __( 'Voir l\'article', 'mca' ) . ' : <a href="' . get_permalink( $comment->comment_post_ID ) . '">' . $titre . '</a> ' . __( 'sur', 'mca' ) . ' <a href="' . get_bloginfo( 'url' ) . '">' . get_bloginfo( 'name' ) . '</a></p>';
 
-        // die(var_dump(wp_mail( $mail, $subject, $message )));
+        add_filter('wp_mail_content_type',create_function('', 'return "text/html"; '));
+        @wp_mail( $mail, $subject, $message );
     }
-    
 }
 add_action( 'comment_post', 'mca_email_poked_ones', 90 );

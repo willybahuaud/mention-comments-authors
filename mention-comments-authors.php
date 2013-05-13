@@ -22,15 +22,17 @@ function mca_enqueue_comments_scripts() {
 
     wp_register_script( 'caretposition', MCA_PLUGIN_URL . '/js/jquery.caretposition.js', array( 'jquery' ), '0.9', true );
     wp_register_script( 'sew', MCA_PLUGIN_URL . '/js/jquery.sew.min.js', array( 'jquery','caretposition' ), '0.9', true );
-    if( ! apply_filters( 'mcaajaxenable', false ) )
-        wp_register_script( 'mca-comment-script', MCA_PLUGIN_URL . '/js/mca-comment-script5.js', array( 'jquery','caretposition','sew' ), '0.9', true );
-    else 
-        wp_register_script( 'mca-comment-script', MCA_PLUGIN_URL . '/js/mca-comment-script-ajax6.js', array( 'jquery','caretposition','sew' ), '0.9', true );
+    wp_register_script( 'mca-comment-script', MCA_PLUGIN_URL . '/js/mca-comment-script.js', array( 'jquery','caretposition','sew' ), '0.9', true );
+    wp_register_script( 'mca-comment-script-ajax', MCA_PLUGIN_URL . '/js/mca-comment-script-ajax.js', array( 'jquery','caretposition','sew' ), '0.9', true );
 
     wp_enqueue_script( 'jquery' );
     wp_enqueue_script( 'caretposition' );
     wp_enqueue_script( 'sew' );
-    wp_enqueue_script( 'mca-comment-script' );
+
+    if( ! apply_filters( 'mcaajaxenable', false ) )
+        wp_enqueue_script( 'mca-comment-script' );
+    else 
+        wp_enqueue_script( 'mca-comment-script-ajax' );
 }
 add_action( 'wp_enqueue_scripts', 'mca_enqueue_comments_scripts' ); //wp_enqueue_scripts
 
@@ -115,9 +117,9 @@ function mca_email_poked_ones( $comment_id ) {
         $titre = get_the_title( $comment->comment_post_ID );
 
         $subject = wp_sprintf( __( ' %s à répondu à votre commentaire sur l\'article &laquo;%s&raquo;' , 'mca' ), $comment->comment_author, $titre );
-        $message = wp_trim_words( $comment->comment_content, 25 ) . "\r\n" . __( 'Voir l\'article', 'mca' ) . ' : <a href="' . get_permalink( $comment->comment_post_ID ) . '">' . $titre . '</a>';
+        $message = wp_trim_words( $comment->comment_content, 25 ) . "\r\n" . __( 'Voir l\'article', 'mca' ) .' : <a href="' . get_permalink( $comment->comment_post_ID ) . '">' . $titre . '</a>';
 
-        wp_mail( $mail, $subject, $message );
+        // die(var_dump(wp_mail( $mail, $subject, $message )));
     }
     
 }

@@ -83,7 +83,9 @@ function printnames(){
 }
 add_action('comment_form','printnames');
 
-
+/**
+RETRIEVE LAST COMMENTATORS KEYS/NAMES
+*/
 function mca_get_previous_commentators( $postid, $commid ) {
     global $wpdb;
     $prev = $wpdb->get_results( $wpdb->prepare("SELECT DISTINCT comment_author FROM $wpdb->comments WHERE comment_post_ID = $postid AND comment_ID < $commid", 'ARRAY_N' ) );

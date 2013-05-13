@@ -1,8 +1,8 @@
 <?php
 /*
 Plugin Name: Mention comment's Authors
-Plugin URI: 
-Description: 
+Plugin URI: http://wabeo.fr
+Description: A twitter/facebook mention like...
 Version: 0.9
 Author: Willy Bahuaud
 Author URI: http://wabeo.fr

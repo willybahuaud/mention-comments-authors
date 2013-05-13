@@ -23,9 +23,9 @@ function mca_enqueue_comments_scripts() {
     wp_register_script( 'caretposition', CTL_PLUGIN_URL . '/js/jquery.caretposition.js', array( 'jquery' ), '0.9', true );
     wp_register_script( 'sew', CTL_PLUGIN_URL . '/js/jquery.sew.min.js', array( 'jquery','caretposition' ), '0.9', true );
     if( ! apply_filters( 'mcaajaxenable', false ) )
-        wp_register_script( 'mca-comment-script', CTL_PLUGIN_URL . '/js/mca-comment-script5.js', array( 'jquery','caretposition','sew' ), '0.9', true );
+        wp_register_script( 'mca-comment-script', CTL_PLUGIN_URL . '/js/mca-comment-script.js', array( 'jquery','caretposition','sew' ), '0.9', true );
     else 
-        wp_register_script( 'mca-comment-script', CTL_PLUGIN_URL . '/js/mca-comment-script-ajax6.js', array( 'jquery','caretposition','sew' ), '0.9', true );
+        wp_register_script( 'mca-comment-script', CTL_PLUGIN_URL . '/js/mca-comment-script-ajax.js', array( 'jquery','caretposition','sew' ), '0.9', true );
 
     wp_enqueue_script( 'jquery' );
     wp_enqueue_script( 'caretposition' );

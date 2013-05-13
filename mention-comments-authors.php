@@ -8,24 +8,24 @@ Author: Willy Bahuaud
 Author URI: http://wabeo.fr
 License: GPLv2 or later
 */
-DEFINE( 'CTL_PLUGIN_URL', trailingslashit( WP_PLUGIN_URL ) . basename( dirname( __FILE__ ) ) );
-DEFINE( 'CTL_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
+DEFINE( 'MCA_PLUGIN_URL', trailingslashit( WP_PLUGIN_URL ) . basename( dirname( __FILE__ ) ) );
+DEFINE( 'MCA_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 global $mcaAuthors;
 
 /**
 LOAD JS ON FRONT OFFICE
 */
 function mca_enqueue_comments_scripts() {
-    wp_register_style( 'mca-styles', CTL_PLUGIN_URL . '/mca-styles.css', false, '0.9', 'all' );
+    wp_register_style( 'mca-styles', MCA_PLUGIN_URL . '/mca-styles.css', false, '0.9', 'all' );
     if( apply_filters( 'mca-load-styles', true ) )
         wp_enqueue_style( 'mca-styles' );
 
-    wp_register_script( 'caretposition', CTL_PLUGIN_URL . '/js/jquery.caretposition.js', array( 'jquery' ), '0.9', true );
-    wp_register_script( 'sew', CTL_PLUGIN_URL . '/js/jquery.sew.min.js', array( 'jquery','caretposition' ), '0.9', true );
+    wp_register_script( 'caretposition', MCA_PLUGIN_URL . '/js/jquery.caretposition.js', array( 'jquery' ), '0.9', true );
+    wp_register_script( 'sew', MCA_PLUGIN_URL . '/js/jquery.sew.min.js', array( 'jquery','caretposition' ), '0.9', true );
     if( ! apply_filters( 'mcaajaxenable', false ) )
-        wp_register_script( 'mca-comment-script', CTL_PLUGIN_URL . '/js/mca-comment-script.js', array( 'jquery','caretposition','sew' ), '0.9', true );
+        wp_register_script( 'mca-comment-script', MCA_PLUGIN_URL . '/js/mca-comment-script5.js', array( 'jquery','caretposition','sew' ), '0.9', true );
     else 
-        wp_register_script( 'mca-comment-script', CTL_PLUGIN_URL . '/js/mca-comment-script-ajax.js', array( 'jquery','caretposition','sew' ), '0.9', true );
+        wp_register_script( 'mca-comment-script', MCA_PLUGIN_URL . '/js/mca-comment-script-ajax6.js', array( 'jquery','caretposition','sew' ), '0.9', true );
 
     wp_enqueue_script( 'jquery' );
     wp_enqueue_script( 'caretposition' );
@@ -51,7 +51,7 @@ function mca_modify_comment_text( $content, $com ) {
             $mcaAuthors[ sanitize_title( $com->comment_author ) ] = $newEntry;
     }
     //Rearrange content
-    $modifiedcontent = preg_replace_callback('/(?:^|\s)\@([a-zA-Z0-9-]*)/', 'mca_comment_callback', $content);
+    $modifiedcontent = preg_replace_callback('/(?:^|\s)\@([a-zA-Z0-9-]*)(?:$|\s)/', 'mca_comment_callback', $content);
     if( apply_filters( 'mcaajaxenable', false ) )
         return '<div class="mca-author" data-name="' . sanitize_title( $com->comment_author ) . '" data-realname="' . esc_attr( $com->comment_author ) . '">' . $modifiedcontent . '</div>';
     else
@@ -86,12 +86,16 @@ add_action( 'comment_form', 'printnames' );
 /**
 RETRIEVE LAST COMMENTATORS KEYS/NAMES
 */
-function mca_get_previous_commentators( $postid, $commid ) {
+function mca_get_previous_commentators( $postid, $commid, $email = false ) {
     global $wpdb;
-    $prev = $wpdb->get_results( $wpdb->prepare("SELECT DISTINCT comment_author FROM $wpdb->comments WHERE comment_post_ID = $postid AND comment_ID < $commid", 'ARRAY_N' ) );
+    $prev = $wpdb->get_results( $wpdb->prepare("SELECT DISTINCT comment_author,comment_author_email FROM $wpdb->comments WHERE comment_post_ID = $postid AND comment_ID < $commid", 'ARRAY_N' ) );
     $out = array();
-    foreach( $prev as $p )
-        $out[ sanitize_title( $p->comment_author ) ] = $p->comment_author;
+    if( $email )
+        foreach( $prev as $p )
+            $out[ sanitize_title( $p->comment_author ) ] = array( $p->comment_author, $p->comment_author_email );
+    else
+        foreach( $prev as $p )
+            $out[ sanitize_title( $p->comment_author ) ] = $p->comment_author;
     return $out;
 }
 
@@ -100,8 +104,21 @@ SEND EMAILS TO POKED ONES
 */
 function mca_email_poked_ones( $comment_id ) {
     $comment = get_comment( $comment_id );
-    $prev_authors = mca_get_previous_commentators( $comment->comment_post_ID, $comment_id );
+    $prev_authors = mca_get_previous_commentators( $comment->comment_post_ID, $comment_id, true );
     //do preg_match
-    // die( var_dump( $comment, $prev_authors ) );
+    $pattern = '/(?:^|\s)\@(' . implode('|', array_keys( $prev_authors ) ) . ')(?:$|\s)/';
+    preg_match_all( $pattern, $comment->comment_content, $matches );
+    // die( var_dump( $comment, $prev_authors, $matches ) );
+    foreach( $matches[1] as $m ) {
+        $mail = $prev_authors[ $m[ 1 ] ][1];
+        $name = $prev_authors[ $m[ 1 ] ][0];
+        $titre = get_the_title( $comment->comment_post_ID );
+
+        $subject = wp_sprintf( __( ' %s à répondu à votre commentaire sur l\'article &laquo;%s&raquo;' , 'mca' ), $comment->comment_author, $titre );
+        $message = wp_trim_words( $comment->comment_content, 25 ) . "\r\n" . __( 'Voir l\'article', 'mca' ) . ' : <a href="' . get_permalink( $comment->comment_post_ID ) . '">' . $titre . '</a>';
+
+        wp_mail( $mail, $subject, $message );
+    }
+    
 }
 add_action( 'comment_post', 'mca_email_poked_ones', 90 );

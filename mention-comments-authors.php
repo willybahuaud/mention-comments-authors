@@ -70,7 +70,7 @@ function mca_comment_callback( $matches ) {
 /**
 RETRIEVE AUTHORS NAMES ON THE OTHER SIDE (SAVING ONE)
 */
-function printnames(){
+function mca_printnames(){
     global $mcaAuthors;
 
     echo '<input type="hidden" name="mcaAuthors" value="' . json_encode( $mcaAuthors ) . '">';
@@ -83,7 +83,7 @@ function printnames(){
     if( ! apply_filters( 'mcaajaxenable', false ) )
         wp_localize_script( 'mca-comment-script', 'mcaAuthors', $authors );
 }
-add_action( 'comment_form', 'printnames' );
+add_action( 'comment_form', 'mca_printnames' );
 
 /**
 RETRIEVE LAST COMMENTATORS KEYS/NAMES

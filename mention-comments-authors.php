@@ -51,7 +51,7 @@ function mca_modify_comment_text( $content, $com ) {
             $mcaAuthors[ sanitize_title( $com->comment_author ) ] = $newEntry;
     }
     //Rearrange content
-    $modifiedcontent = preg_replace_callback('/\@([a-zA-Z0-9-]*)/', 'mca_comment_callback', $content);
+    $modifiedcontent = preg_replace_callback('/(?:^|\s)\@([a-zA-Z0-9-]*)/', 'mca_comment_callback', $content);
     if( apply_filters( 'mcaajaxenable', false ) )
         return '<div class="mca-author" data-name="' . sanitize_title( $com->comment_author ) . '" data-realname="' . esc_attr( $com->comment_author ) . '">' . $modifiedcontent . '</div>';
     else
